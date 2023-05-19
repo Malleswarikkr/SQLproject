@@ -1,0 +1,42 @@
+                              A. Pizza Metrics
+1.How many pizzas were ordered?
+Ans:select count(pizza_id) from pizza_runner.customer_orders
+
+2.How many unique customer orders were made?
+Ans:select count(distinct order_id) from pizza_runner.customer_orders
+
+3.How many successful orders were delivered by each runner?
+Ans:select runner_id,count(distinct co.order_id) from pizza_runner.customer_orders as co inner join pizza_runner.runner_orders as ro on co.order_id=ro.order_id where 
+pickup_time<>'null' group by runner_id
+4.How many of each type of pizza was delivered?
+Ans:select distinct pizza_name,count(pizza_name)over(partition by pizza_name) from pizza_runner.runner_orders as ro  inner join pizza_runner.customer_orders as co
+on co.order_id=ro.order_id inner joinpizza_runner.pizza_names as pn on co.pizza_id=pn.pizza_id where pickup_time<>'null'
+
+5.How many Vegetarian and Meatlovers were ordered by each customer?
+Ans:select co.customer_id,pizza_name,count(pizza_name) from pizza_runner.runner_orders as ro  inner join pizza_runner.customer_orders as co on co.order_id=ro.order_id inner
+join pizza_runner.pizza_names as pn on co.pizza_id=pn.pizza_id where pickup_time<>'null'  group by co.customer_id,pizza_name 
+
+  6.What was the maximum number of pizzas delivered in a single order?
+  Ans:select co.order_id,count(pizza_id)as maxim from pizza_runner.customer_orders as co inner join  pizza_runner.runner_orders as ro on co.order_id=ro.order_id 
+  where pickup_time<>'null' group by co.order_id order by maxim desc limit 1
+  
+  7.For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
+  Ans:select co.customer_id,sum(case when ((exclusions is not NULL and exclusions<>'null' and length(exclusions)>0) or (extras is not NULL and extras<>'null' and 
+  length(extras)>0))=TRUE then 1 else 0 end) changes,sum(case when ((exclusions is not NULL and exclusions<>'null' and length(exclusions)>0) or 
+  (extras is not NULL and extras<>'null' and length(extras)>0))=TRUE then 0 else 1 end) No_changes from pizza_runner.customer_orders as co 
+  inner join pizza_runner.runner_orders as ro on co.order_id=ro.order_id where pickup_time<>'null' group by co.customer_id
+  
+  8.How many pizzas were delivered that had both exclusions and extras?
+Ans:select count(pizza_id)as any_change from pizza_runner.customer_orders as co inner join pizza_runner.runner_orders as ro on co.order_id=ro.order_id where
+pickup_time<>'null' and  (exclusions is not Null and exclusions<>'null' and length(exclusions)>0) and (extras is not null and extras<>'null' and length(extras)>0)
+
+9.What was the total volume of pizzas ordered for each hour of the day?
+Ans:select count(pizza_id),date_part('hour',order_time) as hour from pizza_runner.customer_orders group by date_part('hour',order_time)
+
+10.What was the volume of orders for each day of the week?
+Ans:SELECT TO_CHAR(order_time, 'DAY') AS day_name,count(pizza_id) FROM pizza_runner.customer_orders  group by TO_CHAR(order_time, 'DAY')
+--What was the volume of orders for each day of the week?
+
+
+
+                              
